@@ -175,9 +175,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </span>
           </div>
 
-          {/* Quantity Selector & Add to Cart (Phase 5 Placeholder) */}
+          {/* Quantity Selector & Add to Cart */}
           <div className="pt-2">
-            <QuantitySelector stock={product.stock} />
+            <QuantitySelector
+              productId={product.id}
+              stock={product.stock}
+              productName={product.name}
+              slug={product.slug}
+            />
           </div>
 
           {/* Trust Guarantees */}

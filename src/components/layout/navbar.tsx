@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { useCart } from "@/components/providers/cart-provider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -19,17 +20,12 @@ import {
 export function Navbar() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
+  const { cartCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [cartNotice, setCartNotice] = useState(false);
 
   const isLoading = status === "loading";
   const user = session?.user;
   const isAdmin = user?.role === "ADMIN";
-
-  const handleCartClick = () => {
-    setCartNotice(true);
-    setTimeout(() => setCartNotice(false), 3000);
-  };
 
   const navLinks = [
     { label: "Home", href: "/" },
@@ -99,27 +95,28 @@ export function Navbar() {
             <Search className="w-4 h-4" />
           </Link>
 
-          {/* Cart Placeholder */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={handleCartClick}
-              className="relative p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
-              title="Shopping Cart (Phase 5)"
+          {/* Cart Icon & Live Count */}
+          <Link
+            href="/cart"
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm font-medium transition-colors ${
+              pathname === "/cart"
+                ? "bg-zinc-800 text-white border-zinc-700"
+                : "border-zinc-800/80 bg-zinc-900/50 text-zinc-300 hover:text-white hover:bg-zinc-900 hover:border-zinc-700"
+            }`}
+            title="Shopping Cart"
+          >
+            <ShoppingBag className="w-4 h-4 text-indigo-400" />
+            <span className="hidden sm:inline">Cart</span>
+            <span
+              className={`text-xs px-1.5 py-0.5 rounded-full font-bold transition-all ${
+                cartCount > 0
+                  ? "bg-indigo-600 text-white"
+                  : "bg-zinc-800 text-zinc-400"
+              }`}
             >
-              <ShoppingBag className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500" />
-            </button>
-
-            {cartNotice && (
-              <div className="absolute right-0 top-12 w-64 p-3 rounded-xl bg-zinc-900 border border-zinc-800 shadow-2xl text-xs text-zinc-300 z-50 animate-in fade-in zoom-in-95 duration-150">
-                <p className="font-semibold text-white">Cart & Checkout</p>
-                <p className="text-[11px] text-zinc-400 mt-0.5">
-                  Persistent cart functionality will be integrated in <strong>Phase 5</strong>.
-                </p>
-              </div>
-            )}
-          </div>
+              ({cartCount})
+            </span>
+          </Link>
 
           {/* User Auth Buttons */}
           {isLoading ? (
@@ -221,6 +218,23 @@ export function Navbar() {
                 <ShieldCheck className="w-4 h-4" /> Admin Console
               </Link>
             )}
+            <Link
+              href="/cart"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                pathname === "/cart"
+                  ? "bg-zinc-900 text-white font-semibold"
+                  : "text-zinc-400 hover:bg-zinc-900/60 hover:text-white"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <ShoppingBag className="w-4 h-4 text-indigo-400" />
+                <span>Shopping Cart</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-600/20 text-indigo-300 border border-indigo-500/30">
+                ({cartCount})
+              </span>
+            </Link>
           </nav>
 
           <div className="pt-4 border-t border-zinc-800/80 space-y-2">

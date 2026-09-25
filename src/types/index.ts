@@ -23,6 +23,7 @@ export interface ActionResponse<T = unknown> {
   message?: string;
   data?: T;
   errors?: Record<string, string[]>;
+  requiresAuth?: boolean;
 }
 
 export interface ProductSummary {
