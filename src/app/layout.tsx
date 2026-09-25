@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NOVA | Modern E-Commerce Platform",
+  title: "NOVA | Modern Full-Stack E-Commerce",
   description:
     "Production-style full-stack e-commerce platform engineered with Next.js App Router, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Auth.js, and Stripe.",
 };
@@ -34,6 +35,7 @@ export default function RootLayout({
         <SessionProvider>
           <Navbar />
           <div className="flex-1 flex flex-col">{children}</div>
+          <Footer />
         </SessionProvider>
       </body>
     </html>
