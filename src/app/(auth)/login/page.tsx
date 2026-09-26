@@ -97,6 +97,7 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isLoading}
+            autoComplete="email"
             required
           />
 
@@ -121,6 +122,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
+              autoComplete="current-password"
               required
             />
           </div>

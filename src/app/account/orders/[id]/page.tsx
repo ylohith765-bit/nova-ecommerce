@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 interface OrderDetailPageProps {
   params: Promise<{ id: string }>;
 }

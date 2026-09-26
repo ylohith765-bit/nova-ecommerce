@@ -8,6 +8,8 @@ import { CheckoutView } from "@/components/checkout/checkout-view";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, ArrowLeft, AlertCircle } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Checkout | NOVA E-Commerce",
   description: "Secure Stripe checkout with real-time stock verification.",

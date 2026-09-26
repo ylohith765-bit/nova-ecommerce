@@ -7,6 +7,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Shop All Products | NOVA E-Commerce",
   description: "Browse the complete collection of minimalist tech, acoustics, workspace essentials, and daily carry.",

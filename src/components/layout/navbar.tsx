@@ -2,11 +2,10 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/components/providers/cart-provider";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   User as UserIcon,
   LogOut,
@@ -15,13 +14,16 @@ import {
   Search,
   Menu,
   X,
+  ArrowRight,
 } from "lucide-react";
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: session, status } = useSession();
   const { cartCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
 
   const isLoading = status === "loading";
   const user = session?.user;
@@ -33,47 +35,66 @@ export function Navbar() {
     { label: "Audio", href: "/shop?category=audio-headphones" },
     { label: "Computing", href: "/shop?category=computing-peripherals" },
     { label: "Wearables", href: "/shop?category=wearables-smartwatches" },
+    { label: "Workspace", href: "/shop?category=minimalist-workspace" },
   ];
 
+  const handleMobileSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mobileSearchQuery.trim()) return;
+    router.push(`/shop?search=${encodeURIComponent(mobileSearchQuery.trim())}`);
+    setMobileMenuOpen(false);
+    setMobileSearchQuery("");
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-zinc-800/80 bg-zinc-950/85 backdrop-blur-md transition-colors">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo & Desktop Nav */}
         <div className="flex items-center gap-8">
           <Link
             href="/"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2.5 group"
+            className="flex items-center gap-2.5 group focus:outline-hidden"
+            aria-label="NOVA Homepage"
           >
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white text-lg shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white text-lg shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
               N
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">
+            <span className="text-xl font-extrabold tracking-tight text-white">
               NOVA
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-6 text-sm">
+          <nav className="hidden lg:flex items-center gap-5 text-sm" aria-label="Main Navigation">
             {navLinks.map((link) => {
-              const isActive = pathname === link.href;
+              const isActive =
+                link.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(link.href);
+
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`transition-colors hover:text-white ${
-                    isActive ? "text-white font-semibold" : "text-zinc-400"
+                  className={`relative py-1 text-xs font-medium transition-colors hover:text-white ${
+                    isActive
+                      ? "text-white font-semibold"
+                      : "text-zinc-400"
                   }`}
                 >
                   {link.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 rounded-full" />
+                  )}
                 </Link>
               );
             })}
             {isAdmin && (
               <Link
                 href="/admin"
-                className={`inline-flex items-center gap-1.5 transition-colors hover:text-indigo-300 ${
+                className={`inline-flex items-center gap-1.5 py-1 text-xs font-semibold transition-colors hover:text-indigo-300 ${
                   pathname.startsWith("/admin")
-                    ? "text-indigo-400 font-semibold"
+                    ? "text-indigo-400"
                     : "text-zinc-400"
                 }`}
               >
@@ -84,13 +105,14 @@ export function Navbar() {
           </nav>
         </div>
 
-        {/* Right Actions (Search, Cart Placeholder, Auth) */}
-        <div className="flex items-center gap-3">
+        {/* Right Actions (Search, Cart, Auth) */}
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Quick Search Shortcut */}
           <Link
             href="/shop"
-            className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
             title="Search Store"
+            aria-label="Search all products"
           >
             <Search className="w-4 h-4" />
           </Link>
@@ -98,31 +120,32 @@ export function Navbar() {
           {/* Cart Icon & Live Count */}
           <Link
             href="/cart"
-            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm font-medium transition-colors ${
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm font-medium transition-colors focus:outline-hidden focus:ring-2 focus:ring-indigo-500 ${
               pathname === "/cart"
                 ? "bg-zinc-800 text-white border-zinc-700"
                 : "border-zinc-800/80 bg-zinc-900/50 text-zinc-300 hover:text-white hover:bg-zinc-900 hover:border-zinc-700"
             }`}
             title="Shopping Cart"
+            aria-label={`Shopping Cart with ${cartCount} items`}
           >
             <ShoppingBag className="w-4 h-4 text-indigo-400" />
-            <span className="hidden sm:inline">Cart</span>
+            <span className="hidden sm:inline text-xs font-semibold">Cart</span>
             <span
-              className={`text-xs px-1.5 py-0.5 rounded-full font-bold transition-all ${
+              className={`text-[11px] px-1.5 py-0.2 rounded-full font-bold transition-all ${
                 cartCount > 0
                   ? "bg-indigo-600 text-white"
                   : "bg-zinc-800 text-zinc-400"
               }`}
             >
-              ({cartCount})
+              {cartCount}
             </span>
           </Link>
 
           {/* User Auth Buttons */}
           {isLoading ? (
-            <div className="h-9 w-20 bg-zinc-800/60 rounded-lg animate-pulse hidden sm:block" />
+            <div className="h-9 w-20 bg-zinc-800/60 rounded-xl animate-pulse hidden sm:block" />
           ) : user ? (
-            <div className="hidden sm:flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2.5">
               {isAdmin && (
                 <Link href="/admin">
                   <Button
@@ -140,15 +163,16 @@ export function Navbar() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`flex items-center gap-2 text-zinc-300 hover:text-white hover:bg-zinc-900 border border-zinc-800/60 ${
+                  className={`flex items-center gap-2 text-zinc-300 hover:text-white hover:bg-zinc-900 border border-zinc-800/60 h-8 px-2.5 text-xs ${
                     pathname.startsWith("/account")
                       ? "bg-zinc-900 text-white border-zinc-700"
                       : ""
                   }`}
+                  aria-label="Manage Account"
                 >
-                  <UserIcon className="w-4 h-4 text-zinc-400" />
-                  <span className="max-w-[100px] truncate">
-                    {user.name || user.email}
+                  <UserIcon className="w-3.5 h-3.5 text-zinc-400" />
+                  <span className="max-w-[90px] truncate">
+                    {user.name || user.email?.split("@")[0]}
                   </span>
                 </Button>
               </Link>
@@ -157,25 +181,28 @@ export function Navbar() {
                 variant="ghost"
                 size="sm"
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="text-zinc-400 hover:text-rose-400 hover:bg-rose-950/20"
+                className="text-zinc-400 hover:text-rose-400 hover:bg-rose-950/20 h-8 px-2 text-xs"
                 title="Sign out"
+                aria-label="Sign out of account"
               >
-                <LogOut className="w-4 h-4" />
-                <span className="ml-1">Sign Out</span>
+                <LogOut className="w-3.5 h-3.5" />
               </Button>
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2">
               <Link href="/login">
-                <Button variant="ghost" size="sm" className="text-zinc-300 hover:text-white">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-zinc-300 hover:text-white text-xs h-8 px-3"
+                >
                   Sign In
                 </Button>
               </Link>
               <Link href="/register">
                 <Button
-                  variant="primary"
                   size="sm"
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white"
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs h-8 px-3"
                 >
                   Register
                 </Button>
@@ -187,8 +214,9 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 lg:hidden transition-colors"
-            aria-label="Toggle navigation menu"
+            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-900 lg:hidden transition-colors focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -197,14 +225,34 @@ export function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-zinc-800/80 bg-zinc-950/95 backdrop-blur-xl px-4 py-6 space-y-4">
-          <nav className="flex flex-col space-y-2">
+        <div className="lg:hidden border-t border-zinc-800/80 bg-zinc-950/98 backdrop-blur-xl px-4 py-5 space-y-4 animate-in fade-in slide-in-from-top-2">
+          {/* Mobile Quick Search Form */}
+          <form onSubmit={handleMobileSearchSubmit} className="relative">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={mobileSearchQuery}
+              onChange={(e) => setMobileSearchQuery(e.target.value)}
+              className="w-full h-10 rounded-xl border border-zinc-800 bg-zinc-900/90 pl-10 pr-10 text-xs text-zinc-100 placeholder:text-zinc-500 focus:outline-hidden focus:border-indigo-500"
+            />
+            <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <button
+              type="submit"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-zinc-400 hover:text-white"
+              aria-label="Submit search"
+            >
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </form>
+
+          {/* Mobile Navigation Links */}
+          <nav className="flex flex-col space-y-1.5" aria-label="Mobile Navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`px-3 py-2 rounded-lg text-sm transition-colors ${
+                className={`px-3 py-2.5 rounded-xl text-sm transition-colors ${
                   pathname === link.href
                     ? "bg-zinc-900 text-white font-semibold"
                     : "text-zinc-400 hover:bg-zinc-900/60 hover:text-white"
@@ -217,7 +265,7 @@ export function Navbar() {
               <Link
                 href="/admin"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-lg text-sm text-indigo-400 font-semibold flex items-center gap-2 hover:bg-zinc-900/60"
+                className="px-3 py-2.5 rounded-xl text-sm text-indigo-400 font-semibold flex items-center gap-2 hover:bg-zinc-900/60"
               >
                 <ShieldCheck className="w-4 h-4" /> Admin Console
               </Link>
@@ -225,7 +273,7 @@ export function Navbar() {
             <Link
               href="/cart"
               onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+              className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-colors ${
                 pathname === "/cart"
                   ? "bg-zinc-900 text-white font-semibold"
                   : "text-zinc-400 hover:bg-zinc-900/60 hover:text-white"
@@ -241,22 +289,23 @@ export function Navbar() {
             </Link>
           </nav>
 
-          <div className="pt-4 border-t border-zinc-800/80 space-y-2">
+          {/* User Account / Auth Actions */}
+          <div className="pt-3 border-t border-zinc-800/80 space-y-2">
             {user ? (
               <>
                 <Link
                   href="/account"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-zinc-200 hover:bg-zinc-900/60"
+                  className="flex items-center justify-between px-3 py-2 rounded-xl text-sm text-zinc-200 hover:bg-zinc-900/60"
                 >
                   <div className="flex items-center gap-2">
                     <UserIcon className="w-4 h-4 text-zinc-400" />
                     <span>My Account ({user.name || user.email})</span>
                   </div>
                   {isAdmin && (
-                    <Badge variant="outline" className="text-[10px] border-indigo-500/40 text-indigo-400">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full border border-indigo-500/40 text-indigo-400 bg-indigo-500/10">
                       Admin
-                    </Badge>
+                    </span>
                   )}
                 </Link>
                 <button
@@ -265,20 +314,20 @@ export function Navbar() {
                     setMobileMenuOpen(false);
                     signOut({ callbackUrl: "/" });
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-rose-400 hover:bg-rose-950/20 text-left"
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-rose-400 hover:bg-rose-950/20 text-left transition-colors"
                 >
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
               </>
             ) : (
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className="grid grid-cols-2 gap-2 pt-1">
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="outline" size="md" className="w-full">
                     Sign In
                   </Button>
                 </Link>
                 <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="primary" size="md" className="w-full bg-indigo-600 text-white">
+                  <Button size="md" className="w-full bg-indigo-600 text-white">
                     Register
                   </Button>
                 </Link>

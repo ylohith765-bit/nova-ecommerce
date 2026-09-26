@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import { StockBadge } from "./stock-badge";
+import { QuickAddToCart } from "./quick-add-to-cart";
 import { ArrowUpRight } from "lucide-react";
 
 export interface ProductCardProps {
@@ -31,12 +32,17 @@ export function ProductCard({ product }: ProductCardProps) {
     ? Math.round(((numericComparePrice - numericPrice) / numericComparePrice) * 100)
     : 0;
 
-  const primaryImage = product.images?.[0] || "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+  const primaryImage =
+    product.images?.[0] ||
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
 
   return (
     <div className="group relative flex flex-col rounded-2xl border border-zinc-800/80 bg-zinc-900/60 overflow-hidden hover:border-zinc-700/80 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/5">
       {/* Product Image Area */}
-      <Link href={`/products/${product.slug}`} className="relative aspect-[4/3] sm:aspect-square w-full bg-zinc-950 overflow-hidden block">
+      <Link
+        href={`/products/${product.slug}`}
+        className="relative aspect-[4/3] sm:aspect-square w-full bg-zinc-950 overflow-hidden block"
+      >
         <Image
           src={primaryImage}
           alt={product.name}
@@ -51,7 +57,9 @@ export function ProductCard({ product }: ProductCardProps) {
             <span className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-zinc-950/80 backdrop-blur-md text-zinc-300 border border-zinc-800/80">
               {product.category.name}
             </span>
-          ) : <span />}
+          ) : (
+            <span />
+          )}
 
           <div className="flex items-center gap-1.5">
             {hasDiscount && (
@@ -66,37 +74,55 @@ export function ProductCard({ product }: ProductCardProps) {
 
       {/* Product Info */}
       <div className="flex flex-col flex-1 p-5 justify-between gap-3">
-        <div>
-          <h3 className="font-semibold text-base text-zinc-100 group-hover:text-indigo-400 transition-colors line-clamp-1">
-            <Link href={`/products/${product.slug}`} className="focus:outline-none">
-              <span aria-hidden="true" className="absolute inset-0" />
-              {product.name}
+        <div className="space-y-1">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-semibold text-base text-zinc-100 group-hover:text-indigo-400 transition-colors line-clamp-1">
+              <Link
+                href={`/products/${product.slug}`}
+                className="hover:underline focus:outline-hidden"
+              >
+                {product.name}
+              </Link>
+            </h3>
+            <Link
+              href={`/products/${product.slug}`}
+              className="text-zinc-500 hover:text-indigo-400 transition-colors shrink-0 mt-0.5"
+              aria-label={`View full details of ${product.name}`}
+            >
+              <ArrowUpRight className="w-4 h-4" />
             </Link>
-          </h3>
+          </div>
+
           {product.description && (
-            <p className="text-xs text-zinc-400 line-clamp-2 mt-1 leading-relaxed">
+            <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
               {product.description}
             </p>
           )}
         </div>
 
-        {/* Price & Action */}
-        <div className="flex items-center justify-between pt-2 border-t border-zinc-800/60 mt-auto">
-          <div className="flex items-baseline gap-2">
-            <span className="text-base font-bold text-white">
-              {formatPrice(numericPrice)}
-            </span>
-            {hasDiscount && (
-              <span className="text-xs text-zinc-500 line-through">
-                {formatPrice(numericComparePrice)}
+        {/* Price & Quick Add Button */}
+        <div className="pt-3 border-t border-zinc-800/60 mt-auto space-y-3">
+          <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-bold text-white tracking-tight">
+                {formatPrice(numericPrice)}
               </span>
-            )}
+              {hasDiscount && (
+                <span className="text-xs text-zinc-500 line-through">
+                  {formatPrice(numericComparePrice)}
+                </span>
+              )}
+            </div>
+            <span className="text-[11px] text-zinc-500">
+              {product.stock > 0 ? `${product.stock} in stock` : "Sold out"}
+            </span>
           </div>
 
-          <span className="text-xs font-medium text-indigo-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex items-center">
-            View Details
-            <ArrowUpRight className="w-3.5 h-3.5 ml-0.5" />
-          </span>
+          <QuickAddToCart
+            productId={product.id}
+            productName={product.name}
+            stock={product.stock}
+          />
         </div>
       </div>
     </div>

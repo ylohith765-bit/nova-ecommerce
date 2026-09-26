@@ -29,6 +29,8 @@ import {
   MapPin,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Order Confirmation | NOVA E-Commerce",
   description: "Your order has been confirmed and is being processed.",

@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Package, ArrowLeft, ShoppingBag, ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Order History | NOVA E-Commerce",
   description: "View receipts, status, and tracking for all your previous orders.",

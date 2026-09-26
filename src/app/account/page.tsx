@@ -17,6 +17,8 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 interface AccountPageProps {
   searchParams?: Promise<{ error?: string }>;
 }

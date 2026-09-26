@@ -12,6 +12,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "NOVA | Minimalist Tech & Lifestyle Products",
   description:

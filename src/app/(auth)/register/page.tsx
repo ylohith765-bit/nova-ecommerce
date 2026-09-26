@@ -120,6 +120,7 @@ export default function RegisterPage() {
               }}
               error={fieldErrors.name}
               disabled={isLoading || isSuccess}
+              autoComplete="name"
               required
             />
 
@@ -134,6 +135,7 @@ export default function RegisterPage() {
               }}
               error={fieldErrors.email}
               disabled={isLoading || isSuccess}
+              autoComplete="email"
               required
             />
 
@@ -149,6 +151,7 @@ export default function RegisterPage() {
               error={fieldErrors.password}
               helperText="Requires uppercase, lowercase, and a number."
               disabled={isLoading || isSuccess}
+              autoComplete="new-password"
               required
             />
 
@@ -163,6 +166,7 @@ export default function RegisterPage() {
               }}
               error={fieldErrors.confirmPassword}
               disabled={isLoading || isSuccess}
+              autoComplete="new-password"
               required
             />
 
