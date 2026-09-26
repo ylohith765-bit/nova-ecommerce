@@ -17,8 +17,14 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
-export default async function AccountPage() {
+interface AccountPageProps {
+  searchParams?: Promise<{ error?: string }>;
+}
+
+export default async function AccountPage({ searchParams }: AccountPageProps) {
   const sessionUser = await requireAuth();
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const isUnauthorized = resolvedSearchParams?.error === "unauthorized";
 
   const user = await prisma.user.findUnique({
     where: { id: sessionUser.id },
@@ -44,6 +50,19 @@ export default async function AccountPage() {
 
   return (
     <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      {/* Unauthorized Access Banner */}
+      {isUnauthorized && (
+        <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive flex items-center gap-3">
+          <ShieldAlert className="h-5 w-5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Access Denied</p>
+            <p className="text-xs text-destructive/90">
+              You do not have administrative privileges to access the requested admin console route.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Account Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-zinc-800">
         <div className="flex items-center gap-4">

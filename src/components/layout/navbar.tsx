@@ -124,12 +124,16 @@ export function Navbar() {
           ) : user ? (
             <div className="hidden sm:flex items-center gap-3">
               {isAdmin && (
-                <Badge
-                  variant="outline"
-                  className="border-indigo-500/40 text-indigo-400 bg-indigo-500/10 text-[11px]"
-                >
-                  Admin
-                </Badge>
+                <Link href="/admin">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-indigo-500/40 text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 text-xs gap-1.5 h-8 px-2.5"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Admin
+                  </Button>
+                </Link>
               )}
 
               <Link href="/account">
