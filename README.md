@@ -1,142 +1,335 @@
-# NOVA — Production Full-Stack E-Commerce Platform
+# NOVA — E-Commerce Platform
 
-NOVA is a modern, high-performance, full-stack e-commerce web application engineered with the **Next.js App Router**, **TypeScript**, **Tailwind CSS**, **PostgreSQL**, **Prisma ORM**, **Auth.js (NextAuth v5)**, and **Stripe Test Mode**.
-
----
-
-## ✨ Features
-
-- **Public Storefront**: Responsive product catalog, faceted filtering, search, category navigation, sorting, and dynamic product detail pages.
-- **Authentication & Security**: Auth.js (NextAuth v5) credentials strategy, secure `bcryptjs` password hashing, protected user routes, and Role-Based Access Control (RBAC).
-- **Cart & Wishlist**: Persistent shopping cart with real-time stock boundary enforcement and item favoriting.
-- **Secure Stripe Checkout**: Test-mode Stripe Checkout integration with strict server-side price calculation and webhook signature verification (`stripe.webhooks.constructEvent`).
-- **Transactional Order Processing**: Atomic order creation, inventory deduction, and cart clearance via Prisma transactions (`$transaction`).
-- **Admin Management Portal**: Administrative dashboard with live revenue metrics, inventory tracking, low-stock alerts, product/category CRUD, and order fulfillment status updates.
-- **Design System**: Built with modern typography, dark mode foundation, fluid micro-interactions, responsive mobile layouts, and custom UI primitives.
+A production-grade, full-stack e-commerce web platform engineered with **Next.js 16 (App Router)**, **TypeScript**, **Tailwind CSS**, **PostgreSQL**, **Prisma ORM**, **Auth.js (NextAuth v5)**, and **Stripe Test Mode**.
 
 ---
 
-## 🚀 Tech Stack
+## 1. Project Overview
+NOVA is designed as a minimalist, high-performance direct-to-consumer e-commerce destination specializing in acoustics, precision mechanical peripherals, smart titanium wearables, and minimalist workspace equipment. 
 
-| Technology | Purpose |
-|---|---|
-| **Next.js 16 (App Router)** | Hybrid Server/Client components, SSR, SEO, Server Actions, Route Handlers |
-| **React 19** | Modern UI primitives and concurrent rendering |
-| **TypeScript 5** | End-to-end type safety |
-| **Tailwind CSS v4** | Modern, tokenized utility styling |
-| **PostgreSQL** | Relational data persistence |
-| **Prisma ORM 6.4.1** | Type-safe database client, schema migrations, and relational modeling |
-| **Auth.js / NextAuth v5** | Secure credential authentication, password hashing (`bcryptjs`), and RBAC |
-| **Stripe SDK** | Test-mode payment checkout and webhook verification |
-| **Zod** | Runtime schema validation for forms, APIs, and environment variables |
-| **React Hook Form** | High-performance, declarative form state management |
-| **Lucide Icons** | Consistent, modern iconography |
+The application is built strictly around architectural integrity, type safety, server-side data validation, transactional consistency, and accessible responsive design across all devices.
 
 ---
 
-## 📁 Project Structure
+## 2. Key Features
+- **Modern Public Storefront**: High-impact hero section, category showcases, faceted product filtering, search, and dynamic product detail pages with real-time stock indicators.
+- **Robust Authentication**: Auth.js credentials provider with secure `bcryptjs` password hashing, protected customer routes, and server-enforced Role-Based Access Control (RBAC).
+- **Persistent Shopping Cart**: Database-persisted shopping cart for authenticated users with optimistic client feedback, live stock limits, and item-level controls.
+- **Secure Stripe Test Checkout**: Server-calculated pricing, automated shipping/tax calculation, and Stripe Hosted Checkout Sessions operating exclusively in **Stripe Test Mode**.
+- **Transactional Order Processing**: Atomic fulfillment pipeline via Prisma `$transaction` that reserves stock, creates orders and line items, logs payment records, and clears the cart upon verified payment.
+- **Idempotent Stripe Webhook**: Robust webhook listener verifying cryptographic signatures (`stripe.webhooks.constructEvent`) with duplicate event protection.
+- **Comprehensive Admin Console**: Dedicated administrative suite featuring live financial and operational KPIs, product & category CRUD, real-time inventory management, customer metrics, and order fulfillment status pipelines.
+- **Design System & Polish**: Minimalist dark UI system, Geist typography, touch-accessible interactive elements, loading skeleton states, empty states, and custom 404 error boundaries.
 
+---
+
+## 3. Tech Stack
+| Layer | Technology | Description |
+|---|---|---|
+| **Framework** | Next.js 16 (App Router & Turbopack) | Hybrid React Server Components, Server Actions, Route Handlers |
+| **Language** | TypeScript 5 | End-to-end strict type safety |
+| **Styling** | Tailwind CSS v4 & Vanilla CSS | Tokenized variables, dark aesthetic, responsive utilities |
+| **Database** | PostgreSQL (Supabase) | Scalable relational database |
+| **ORM** | Prisma ORM 6.4.1 | Schema migrations, type-safe queries, relation modeling |
+| **Authentication** | Auth.js / NextAuth v5 | JWT session strategy, bcrypt hashing, route guards |
+| **Payments** | Stripe SDK (Test Mode) | Hosted checkout sessions and cryptographic webhooks |
+| **Validation** | Zod | Runtime schema validation for forms, APIs, and mutations |
+| **Form Handling** | React Hook Form & Resolvers | Performant, accessible form control |
+| **Icons** | Lucide React | Clean, scalable icon system |
+
+---
+
+## 4. Application Architecture
+```
+                           Browser Client
+                 (React 19 / Server & Client Components)
+                                │
+                      HTTP / Server Actions
+                                │
+               ┌────────────────┴────────────────┐
+               ▼                                 ▼
+      Next.js App Router               NextAuth v5 (Auth.js)
+  (Page & Route Handlers)             (JWT Session & bcrypt)
+               │                                 │
+               ▼                                 ▼
+      Server Actions Layer ─────────────► Prisma ORM 6.4.1
+  (Zod Validation & RBAC Guard)                  │
+               │                                 │
+               ▼                                 ▼
+       Stripe Test API                 Supabase PostgreSQL
+  (Checkout Sessions & Webhook)        (Relational Database)
+```
+
+---
+
+## 5. Folder Structure
 ```
 nova-ecommerce/
 ├── prisma/
-│   └── schema.prisma           # Complete PostgreSQL schema (Users, Products, Carts, Orders, Payments)
-├── public/                     # Static assets, brand images
+│   ├── schema.prisma              # Database schema (Models, Enums, Relations)
+│   └── seed.ts                    # Initial database seed (24 products, 5 categories)
+├── public/                        # Static brand assets and icons
 ├── src/
-│   ├── actions/                # Next.js Server Actions (Mutations & safe execution wrappers)
-│   ├── app/                    # Next.js App Router pages, layouts, and route handlers
-│   │   ├── globals.css         # Global design system & theme variables
-│   │   ├── layout.tsx          # Root layout with fonts, metadata, and themes
-│   │   └── page.tsx            # Foundation landing & status overview
-│   ├── components/
-│   │   └── ui/                 # Reusable atomic UI components (Button, Input, Card, Badge, Skeleton)
-│   ├── hooks/                  # Custom React hooks (e.g. useDebounce)
-│   ├── lib/
-│   │   ├── env.ts              # Zod runtime environment variable validation
-│   │   ├── prisma.ts           # Singleton Prisma client instance
-│   │   ├── stripe.ts           # Stripe client in Test Mode
-│   │   └── utils.ts            # Classnames merger (cn), currency and date formatters
-│   ├── types/
-│   │   └── index.ts            # Global TypeScript interfaces, DTOs, and domain types
-│   └── validations/            # Zod schemas (auth, product, category, checkout)
-├── .env.example                # Template for required environment variables
-├── .env                        # Local development variables (git-ignored)
-├── package.json
-├── tsconfig.json
-└── README.md
+│   ├── actions/                   # Server Actions (auth, cart, checkout, admin)
+│   ├── app/                       # Next.js App Router
+│   │   ├── (auth)/                # Auth route group (/login, /register)
+│   │   ├── account/               # Customer account and order history
+│   │   ├── admin/                 # Admin console (products, categories, orders, customers)
+│   │   ├── api/                   # API routes (NextAuth, Stripe webhooks)
+│   │   ├── cart/                  # Shopping cart view
+│   │   ├── checkout/              # Shipping information, summary, cancel/success
+│   │   ├── products/              # Product detail dynamic routes & redirects
+│   │   ├── shop/                  # Main catalog with search & faceted filters
+│   │   ├── globals.css            # Design system tokens and custom scrollbars
+│   │   ├── layout.tsx             # Root layout, font definitions, providers, metadata
+│   │   └── not-found.tsx          # Custom 404 page with recovery actions
+│   ├── components/                # Reusable UI and Domain components
+│   │   ├── account/               # Profile and order history components
+│   │   ├── admin/                 # Dashboard tables, metrics cards, modal dialogs
+│   │   ├── cart/                  # Cart view, item rows, quantity selectors
+│   │   ├── checkout/              # Checkout form and summary cards
+│   │   ├── layout/                # Navbar, mobile drawer menu, footer
+│   │   ├── shop/                  # ProductCard, ProductGrid, ImageGallery, Filters
+│   │   └── ui/                    # Design system primitives (Button, Input, Badge, Card)
+│   ├── lib/                       # Core utilities (prisma, stripe, auth, utils)
+│   ├── types/                     # Shared TypeScript interfaces & DTOs
+│   └── validations/               # Zod schemas for input validation
+├── .env.example                   # Environment configuration template
+├── .gitignore                     # Git ignore rules (secrets protected)
+├── package.json                   # Dependencies and scripts
+├── tsconfig.json                  # TypeScript compiler settings
+└── README.md                      # Project documentation
 ```
 
 ---
 
-## ⚙️ Environment Variables
-
-Copy `.env.example` to `.env` and fill in your values:
-
-```bash
-cp .env.example .env
-```
-
-| Variable | Description | Example |
-|---|---|---|
-| `DATABASE_URL` | PostgreSQL connection URI | `postgresql://user:pass@localhost:5432/nova_ecommerce?schema=public` |
-| `AUTH_SECRET` | NextAuth v5 secret key | `min-32-character-random-secret` |
-| `NEXTAUTH_URL` | Application base URL | `http://localhost:3000` |
-| `STRIPE_SECRET_KEY` | Stripe Test Secret Key | `sk_test_...` |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe Test Publishable Key | `pk_test_...` |
-| `STRIPE_WEBHOOK_SECRET` | Stripe Webhook Signing Secret | `whsec_...` |
-| `NEXT_PUBLIC_APP_URL` | Public redirect base URL | `http://localhost:3000` |
+## 6. Authentication
+- **Provider**: NextAuth v5 (Auth.js) Credentials Provider.
+- **Hashing**: `bcryptjs` with 10 salt rounds.
+- **Roles**:
+  - `USER`: Default role for all public registrations.
+  - `ADMIN`: Elevated role granting access to `/admin` routes and administrative mutations.
+- **Server Guards**:
+  - `requireAuth()`: Redirects unauthenticated visitors to `/login?callbackUrl=...`.
+  - `requireAdmin()`: Validates that the active session has `role === "ADMIN"`. Normal users are redirected to `/account?error=unauthorized`.
+- **Session Strategy**: Secure JWT tokens stored in HTTP-only cookies.
 
 ---
 
-## 🛠️ How to Install and Run Locally
-
-### 1. Prerequisites
-- **Node.js** v20+ (tested on Node v24)
-- **npm** v10+
-- **PostgreSQL** instance running locally or hosted (Supabase, Neon, etc.)
-
-### 2. Install Dependencies
-```bash
-npm install
-```
-
-### 3. Generate Prisma Client
-```bash
-npx prisma generate
-```
-
-### 4. Push Database Schema (When PostgreSQL is connected)
-```bash
-npx prisma db push
-```
-
-### 5. Run Development Server
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+## 7. Product Search and Filtering
+- **Search**: Case-insensitive substring matching against product names and descriptions.
+- **Category Filter**: Faceted filtering by category slug with real-time product counts.
+- **Price Range**: Minimum and maximum price boundaries with real-time client validation.
+- **Sorting Options**:
+  - Featured (Default)
+  - Price: Low to High
+  - Price: High to Low
+  - Name: A to Z
+  - Newest Arrivals
+- **Pagination**: Configurable items-per-page with pagination controls.
+- **Empty State**: Friendly messaging with a 1-click "Reset All Filters" button.
 
 ---
 
-## 📜 Available Scripts
-
-| Script | Command | Purpose |
-|---|---|---|
-| `npm run dev` | `next dev` | Start development server on port 3000 |
-| `npm run build` | `next build` | Create optimized production build |
-| `npm run start` | `next start` | Start production server |
-| `npm run lint` | `eslint` | Run ESLint checks |
-| `npx prisma studio` | `prisma studio` | Open Prisma Web GUI to inspect database records |
-| `npx prisma validate` | `prisma validate` | Validate schema syntax and model integrity |
+## 8. Shopping Cart
+- **Data Persistence**: Cart items are persisted in PostgreSQL linked to the authenticated user's ID.
+- **Stock Guardrails**: The server enforces real-time stock boundary checks:
+  - Users cannot add more units than currently exist in warehouse inventory.
+  - Adding an existing item increments its quantity instead of creating duplicates.
+  - Setting quantity to 0 or clicking the remove button deletes the line item.
+- **Optimistic UI Feedback**: 1-click `QuickAddToCart` button provides instant feedback, loading indicators, and checkmark confirmation.
 
 ---
 
-## 🗺️ Development Roadmap
+## 9. Stripe Test Checkout
+- **Mode**: Configured strictly in **Stripe Test Mode** (`sk_test_...`).
+- **Server-Side Security**:
+  - Prices, totals, and currency codes are queried directly from the PostgreSQL database at checkout creation.
+  - Browser-submitted prices are never trusted.
+- **Line Items**: Unit amounts are converted to integer cents (`Math.round(unitPrice * 100)`).
+- **Shipping & Tax Calculation**:
+  - Orders under $150 include $15 standard shipping (free shipping over $150).
+  - 8% estimated sales tax is automatically computed.
+- **Client Reference**: Attaches `client_reference_id` and metadata (`userId`, `addressId`) to link the Stripe session to the database order.
 
-- [x] **Phase 1: Project Foundation** (Next.js App Router, TypeScript, Tailwind CSS, Prisma Schema, Stripe/Auth dependencies, UI primitives, validation schemas)
-- [ ] **Phase 2: Authentication & User Accounts** (Auth.js credentials, registration, login, protected routes, profile & addresses)
-- [ ] **Phase 3: Public Catalog & Shopping Experience** (Navbar, Footer, Catalog filtering, Search, Sorting, Product details)
-- [ ] **Phase 4: Cart & Wishlist System** (Database-persisted cart, real-time stock limits, cart drawer, wishlist)
-- [ ] **Phase 5: Stripe Checkout & Webhook Integration** (Server-side price verification, Stripe checkout session, webhook handler, order creation)
-- [ ] **Phase 6: Admin Management Portal** (Dashboard metrics, product/category CRUD, stock management, order status pipeline)
-- [ ] **Phase 7: Polish & End-to-End Verification** (Loading skeletons, toast notifications, error handling)
+---
+
+## 10. Order Management
+- **Order Lifecycle**: `PENDING` ➔ `PROCESSING` ➔ `SHIPPED` ➔ `DELIVERED` (or `CANCELLED`).
+- **Order Numbering**: Unique human-readable format (e.g. `NOVA-M1A2B3-XYZ9`).
+- **Price Preservation**: `OrderItem` stores the purchase-time price so subsequent catalog price updates do not alter historical invoices.
+- **Customer View**: Users can inspect their complete order history and detailed invoices at `/account/orders`.
+
+---
+
+## 11. Admin Dashboard
+Accessible at `/admin` strictly for authenticated administrators:
+- **Financial Metrics**: Total revenue, total orders, total customers, low-stock warnings.
+- **Product Management**: Create new products, upload image URLs, edit pricing, manage stock, and toggle active status.
+- **Category Management**: Create and edit categories with slug validation and deletion safeguards.
+- **Order Fulfillment**: Review order details, customer shipping addresses, payment records, and update order statuses.
+- **Customer Directory**: View customer profiles, order counts, and registration dates with sensitive data completely masked.
+
+---
+
+## 12. Inventory Management
+- **Live Stock Tracking**: Every product has a verified integer stock value.
+- **Out of Stock Guard**: When stock reaches 0, the storefront displays an `Out of Stock` badge and disables checkout buttons.
+- **Atomic Stock Decrement**: When a payment succeeds, inventory is decremented inside a database transaction using `Math.max(0, currentStock - purchasedQuantity)`.
+
+---
+
+## 13. Database
+The application uses PostgreSQL (hosted on Supabase) via Prisma ORM:
+- **`User`**: Account credentials, profile, role (`USER` | `ADMIN`), timestamps.
+- **`Category`**: Name, slug, description, image.
+- **`Product`**: Title, slug, description, price, compareAtPrice, stock, images, isActive, category relation.
+- **`Cart` & `CartItem`**: User-associated shopping cart with unique `cartId_productId` compound constraint.
+- **`Address`**: Shipping address lines, phone, postal code, default flag.
+- **`Order` & `OrderItem`**: Order status, totals, shipping address snapshot, purchase prices.
+- **`Payment`**: Stripe session ID, payment intent, amount, currency, status (`PENDING` | `PAID` | `FAILED`).
+
+---
+
+## 14. Environment Variables
+Create a local `.env` file using the template below. **Never commit `.env` to Git.**
+
+```env
+# PostgreSQL Database Connection (Supabase / Local)
+DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@[YOUR-HOST]:5432/postgres?schema=public"
+
+# Auth.js / NextAuth v5 Secret (Min 32 characters)
+AUTH_SECRET="your-development-auth-secret-min-32-chars-long"
+NEXTAUTH_URL="http://localhost:3000"
+
+# Stripe Test Mode Keys (https://dashboard.stripe.com/test/apikeys)
+STRIPE_SECRET_KEY="sk_test_placeholder"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_placeholder"
+
+# Stripe Webhook Signing Secret (from Stripe CLI or Dashboard)
+STRIPE_WEBHOOK_SECRET="whsec_placeholder"
+
+# Public Application URL
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+
+---
+
+## 15. Local Development Setup
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/ylohith765-bit/nova-ecommerce.git
+   cd nova-ecommerce
+   ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Configure environment variables**:
+   ```bash
+   cp .env.example .env
+   # Update .env with your PostgreSQL credentials and Stripe test keys
+   ```
+
+---
+
+## 16. Database Setup / Prisma Commands
+- **Generate Prisma Client**:
+  ```bash
+  npx prisma generate
+  ```
+- **Push schema to database**:
+  ```bash
+  npx prisma db push
+  ```
+- **Seed database with initial products and categories**:
+  ```bash
+  npx prisma db seed
+  ```
+- **Open Prisma Studio (Visual DB Browser)**:
+  ```bash
+  npx prisma studio
+  ```
+
+---
+
+## 17. Running the Project
+- **Development Server**:
+  ```bash
+  npm run dev
+  ```
+  Open [http://localhost:3000](http://localhost:3000) in your browser.
+- **Production Build & Start**:
+  ```bash
+  npm run build
+  npm run start
+  ```
+
+---
+
+## 18. Stripe Test Mode Instructions
+1. Open the [Stripe Dashboard](https://dashboard.stripe.com/) and toggle into **Test Mode**.
+2. Copy your Test Secret Key (`sk_test_...`) into `.env` as `STRIPE_SECRET_KEY`.
+3. For local webhook testing, install the [Stripe CLI](https://stripe.com/docs/stripe-cli) and run:
+   ```bash
+   stripe listen --forward-to localhost:3000/api/stripe/webhook
+   ```
+4. Copy the printed webhook signing secret (`whsec_...`) into `.env` as `STRIPE_WEBHOOK_SECRET`.
+5. Use Stripe's official test card details during checkout:
+   - **Card Number**: `4242 4242 4242 4242`
+   - **Expiry**: Any future date (e.g. `12/28`)
+   - **CVC**: `123`
+   - **Postal Code**: `90210`
+
+---
+
+## 19. Test Accounts
+For demonstration and evaluation purposes, seed scripts configure the following roles:
+- **Administrator Account**:
+  - Email: `admin@novastore.com`
+  - Access: Full access to `/admin` console and inventory management.
+- **Customer Account**:
+  - Email: `alice@novastore.com`
+  - Access: Customer storefront, persistent cart, order history at `/account`.
+- **Self-Registration**:
+  - Visitors can also register any new account at `/register` to test the customer onboarding flow.
+
+*(Note: Passwords are encrypted with bcrypt upon account creation).*
+
+---
+
+## 20. Deployment Instructions (Vercel)
+1. Push your repository to GitHub: `https://github.com/ylohith765-bit/nova-ecommerce`.
+2. Log in to [Vercel](https://vercel.com/) and click **"Add New Project"**.
+3. Import the `nova-ecommerce` repository.
+4. Set the Framework Preset to **Next.js**.
+5. In **Environment Variables**, configure the following required variables:
+   - `DATABASE_URL`: Your production PostgreSQL connection string.
+   - `AUTH_SECRET`: A 32+ character random secret (`openssl rand -base64 32`).
+   - `STRIPE_SECRET_KEY`: Your Stripe Test Secret Key (`sk_test_...`).
+   - `STRIPE_WEBHOOK_SECRET`: The webhook secret created in your Stripe dashboard.
+   - `NEXT_PUBLIC_APP_URL`: Your production Vercel domain (e.g. `https://nova-ecommerce.vercel.app`).
+6. Click **Deploy**. Vercel will install dependencies, trigger `postinstall: prisma generate`, compile the Next.js application, and deploy to the edge.
+
+---
+
+## 21. Security Considerations
+- **No Secrets in Client Bundles**: Database credentials and Stripe secret keys exist strictly in server-side modules (`src/lib/`, Server Actions, API routes).
+- **Server-Side Authorization**: Client-side visibility does not govern permissions. Mutations verify user session and roles server-side using `requireAuth()` and `requireAdmin()`.
+- **Cryptographic Webhook Verification**: Stripe webhooks reject any payload without a valid cryptographic signature from Stripe.
+- **IDOR Protection**: Carts, addresses, and orders verify database ownership against `currentUser.id` before allowing updates or reads.
+- **Injection & XSS Prevention**: Prisma uses parameterized queries natively, preventing SQL injection; React and Next.js escape output by default.
+
+---
+
+## 22. Future Improvements
+- Multi-currency conversion and international localized pricing.
+- Customer product reviews and verified-buyer star rating systems.
+- Real-time inventory notifications via automated email/SMS alerts.
+- One-click re-order workflows and downloadable PDF invoices.
+- Advanced warehouse multi-location fulfillment tracking.
+
+---
+
+## 📄 License
+This project was developed for the NOVA E-Commerce internship technical submission.
