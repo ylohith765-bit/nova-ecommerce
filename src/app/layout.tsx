@@ -17,9 +17,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NOVA | Modern Full-Stack E-Commerce",
+  title: {
+    default: "NOVA | Minimalist Tech & Lifestyle Products",
+    template: "%s | NOVA",
+  },
   description:
-    "Production-style full-stack e-commerce platform engineered with Next.js App Router, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Auth.js, and Stripe.",
+    "Discover high-fidelity audio, mechanical computing peripherals, titanium smartwatches, and minimalist workspace equipment.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  openGraph: {
+    title: "NOVA | Minimalist Tech & Lifestyle Products",
+    description:
+      "Discover high-fidelity audio, mechanical computing peripherals, titanium smartwatches, and minimalist workspace equipment.",
+    siteName: "NOVA",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
